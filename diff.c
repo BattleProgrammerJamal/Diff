@@ -1,73 +1,115 @@
+/**
+   Projet Diff
+   -----------
+   Fonctions / Proc�dures directement li�es �
+   la gestion des arguments en entr�e et la mise
+   en relation avec les options: Jamal BOUIZEM
+*/
+
 #include "diff.h"
 
-/* Renvoie la représentation d'un fichier sous forme de chaîne de caractères*/
-void fToString(FILE* F)
+void (*diff_funcs[NB_FONCTIONS])(int, void**);
+
+void init_diff_funcs()
 {
-	int c;
-	while((c = fgetc(F)) != EOF)
-	{
-		if(c != '\n')
-		{
-			printf("%c", c);
-		}
-		else
-		{
-			printf("\n");
-		}
-	}
-	printf("\n");
+    diff_funcs[0] = diff_normal;
+    diff_funcs[1] = diff_brief;
+    diff_funcs[2] = diff_report_id_files;
+    diff_funcs[3] = diff_side_by_side;
+    diff_funcs[4] = diff_expand_tabs;
+    diff_funcs[5] = diff_ignore_case;
+    diff_funcs[6] = diff_help;
 }
 
-/* Ecrit dans un fichiers de log d'erreurs, en titre le type d'erreur et le contenu de l'erreur */
-void printErr(char* err_type, char* err_str)
-{	
-	FILE *log_err;
-	log_err = fopen("LogErr.ini", "a+");
-	fprintf(log_err, "[%s]\n%s\n\n", err_type, err_str);
-	fclose(log_err);
-	printf("Erreur [Voir le fichier de log pour plus de precisions]\n");
-	putchar('\7');
+t_list* get_opts_id(int argc, char** argv)
+{
+    t_list* l_id = 0;
+    if(argc > 0)
+    {
+        l_id = list_new(argc);
+
+        int i = 0;
+        for(i = 0; i < argc; ++i)
+        {
+            if(str_cmp(argv[i], "--normal") == 0)
+            {
+                list_append(l_id, DIFF_NORMAL);
+            }
+            else
+            {
+                if(str_cmp(argv[i], "-q") == 0 || str_cmp(argv[i], "--brief") == 0)
+                {
+                    list_append(l_id, DIFF_BRIEF);
+                }
+                else
+                {
+                    if(str_cmp(argv[i], "-s") == 0 || str_cmp(argv[i], "--report-identical-files") == 0)
+                    {
+                        list_append(l_id, DIFF_REPORT_IDENTICAL_FILES);
+                    }
+                    else
+                    {
+                        if(str_cmp(argv[i], "-y") == 0 || str_cmp(argv[i], "--side-by-side") == 0)
+                        {
+                            list_append(l_id, DIFF_SIDE_BY_SIDE);
+                        }
+                        else
+                        {
+                            if(str_cmp(argv[i], "-t") == 0 || str_cmp(argv[i], "--expand-tabs") == 0)
+                            {
+                                list_append(l_id, DIFF_EXPAND_TABS);
+                            }
+                            else
+                            {
+                                if(str_cmp(argv[i], "-i") == 0 || str_cmp(argv[i], "--ignore-case") == 0)
+                                {
+                                    list_append(l_id, DIFF_IGNORE_CASE);
+                                }
+                                else
+                                {
+                                    if(str_cmp(argv[i], "--help") == 0)
+                                    {
+                                        list_append(l_id, DIFF_HELP);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        l_id = list_new(1);
+        list_append(l_id, 0);
+    }
+
+    return l_id;
 }
 
-/* Renvoie le nombre de caractères d'un fichier texte */
-int fcountc(FILE* f)
+void execute(int argc, void** argv, void (*ptr)(int, void**))
 {
-	int c, n = 0;
-	while((c = fgetc(f)) != EOF)
-	{
-		++n;
-	}
-	return n;
+    ptr(argc, argv);
 }
 
-/* 
-	Compare deux fichiers et renvoie:
-		-1, si les fichiers sont de taille différentes
-		0, si les fichiers sont complètement identiques
-		si les fichiers sont identique à un n point, n est renvoyé
-*/
-int diff(FILE* f1, FILE* f2)
+void run(int argc, void** argv)
 {
-	if(fcountc(f1) != fcountc(f2)) { return -1; } 
+    t_list* l = 0;
+    l = get_opts_id(argc-3, argv);
 
-	int c1 = fgetc(f1), c2 = fgetc(f2), cpt = 1;
-	while(c1 != EOF && c2 != EOF)
-	{
-		if((char)c1 != (char)c2)
-		{
-			if(fcountc(f1) < fcountc(f2))
-			{
-				return fcountc(f2)-cpt;
-			}
-			else
-			{
-				return fcountc(f1)-cpt;
-			}
-		}
-	
-		c1 = fgetc(f1);
-		c2 = fgetc(f2);
-		cpt++;
-	}
-	return 0;
+    if(l->length > 0)
+    {
+        int i = 0;
+        for(i = 0; i < l->length; ++i)
+        {
+            execute(argc, (void**)argv, diff_funcs[l->elems[i]]);
+        }
+    }
+    else
+    {
+        execute(argc, (void**)argv, diff_funcs[0]);
+    }
+
+    free(l);
 }

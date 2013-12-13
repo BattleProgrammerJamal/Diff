@@ -1,44 +1,27 @@
+/**
+   Projet Diff
+   -----------
+   Point d'entrée, utilise les
+   fonctions définie dans diff.c/h
+   pour rediriger vers telle ou telle
+   fonctionnalitée du Diff: Jamal BOUIZEM
+*/
+
 #include "main.h"
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-	if(argc <= 3)
-	{
-		FILE *f1, *f2;
-		f1 = fopen(argv[1], "r+");
-		f2 = fopen(argv[2], "r+");
-		
-		if(f1 != NULL && f2 != NULL)
-		{
-			if(diff(f1, f2) == 0)
-			{
-				printf("Les fichiers [%s] et [%s] sont identiques\n", argv[1], argv[2]);
-			}
-			else
-			{
-				if(diff(f1, f2) == -1)
-				{
-					printf("Les fichiers [%s] et [%s] sont differents\n", argv[1], argv[2]);
-				}
-				else
-				{
-					printf("Les fichiers [%s] et [%s] sont differents (%d caracteres de differences)\n", argv[1], argv[2], diff(f1, f2));
-				}
-			}
-		}
-		else
-		{
-			printErr("Initialisation de fichier", "Echec de l'initialisation des fichiers ! \n");
-			return 1;
-		}
-		
-		fclose(f1);
-		fclose(f2);
-	}
-	else
-	{
-		printErr("Arguments de ligne de commande", "Nombre d'arguments insuffisant ! \n");
-		return 1;
-	}
-	return 0;
+    if(argc <= 6 && argc >= 4)
+    {
+        init_diff_funcs();
+        tab_pop(argc, argv);
+        run(argc, argv);
+    }
+    else
+    {
+        printf("Pas assez ou trop d'arguments ! \n");
+        return(1);
+    }
+
+    return(0);
 }
