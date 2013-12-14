@@ -10,13 +10,62 @@
 void diff_normal(int argc, void** argv)
 {
     FILE *f1 = 0, *f2 = 0;
-    f1 = fopen((char*)argv[argc-2], "r");
-    f2 = fopen((char*)argv[argc-1], "r");
+    f1 = fopen((char*)argv[0], "r");
+    f2 = fopen((char*)argv[1], "r");
 
-    printf("Diff normal \n");
+    if(f1 != 0 && f2 != 0)
+    {
+        int n1 = 0, n2 = 0, different = 1, i = 0, ligne = 1;
+        char *str = 0, *str2 = 0;
+        str = (char*)malloc(sizeof(char*)*255);
+        str2 = (char*)malloc(sizeof(char*)*255);
+        while((fgets(str, 255, f1) != 0) && (fgets(str2, 255, f2) != 0))
+        {
+            str_sub(str, '\n');
+            str_sub(str2, '\n');
 
-    fclose(f1);
-    fclose(f2);
+            if(str_cmp(str, str2) == 0)
+            {
+                printf("%i, [%s] = [%s]", ligne, str, str2);
+            }
+            else
+            {
+                different = 1;
+                n1 = nb_mots(str);
+                n2 = nb_mots(str2);
+
+                for(i = 0; str[i] != '\0' || str2[i] != '\0'; ++i)
+                {
+                    if(str[i] == str2[i])
+                    {
+                        different = 0;
+                        break;
+                    }
+                }
+
+                if(different == 0)
+                {
+                    printf("%i, [%s] d [%s]", ligne, str, str2);
+                }
+                else
+                {
+                    printf("%i, [%s] c [%s]", ligne, str, str2);
+                }
+            }
+            putchar('\n');
+            ++ligne;
+        }
+
+        free(str);
+        free(str2);
+        fclose(f1);
+        fclose(f2);
+    }
+    else
+    {
+        printf("Unexistant(s) file(s) ! \n");
+        return;
+    }
 }
 
 void diff_brief(int argc, void**argv)
@@ -46,9 +95,7 @@ void diff_ignore_case(int argc, void**argv)
 
 void diff_help(int argc, void**argv)
 {
-    printf("[ Diff version 1.0 ]\n");
-    printf("---------------------\n");
-    printf("Liste des options : \n");
+    printf("Usage: diff [OPTION]... FICHIER1 FICHIER2\n\n");
     printf("--normal\tProduire un diff en format normal (par defaut)\n");
     printf("-q, --brief\tIndiquer seulement si les fichiers different\n");
     printf("-s, --report-identical-files\tIndiquer si les deux fichiers sont identiques\n");

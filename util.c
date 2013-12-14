@@ -207,6 +207,17 @@ void tab_pop(int n, char** tab)
     tab[i] = "\0";
 }
 
+void str_sub(char* str, char c)
+{
+    while(*str++ != '\0')
+    {
+        if(*str == c)
+        {
+            *str = (char)(0);
+        }
+    }
+}
+
 int fCountLines(FILE* f)
 {
     if(f != 0)

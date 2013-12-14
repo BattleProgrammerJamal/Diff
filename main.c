@@ -11,15 +11,16 @@
 
 int main(int argc, char** argv)
 {
-    if(argc <= 6 && argc >= 4)
+    if(argc <= 6 && argc >= 3)
     {
         init_diff_funcs();
         tab_pop(argc, argv);
-        run(argc, argv);
+        run(argc, (void**)argv);
     }
     else
     {
-        printf("Pas assez ou trop d'arguments ! \n");
+        printf("operateur manquant \n");
+        printf("Essayer l\'option \'--help\' pour de plus amples renseignements. \n");
         return(1);
     }
 

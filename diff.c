@@ -8,7 +8,7 @@
 
 #include "diff.h"
 
-void (*diff_funcs[NB_FONCTIONS])(int, void**);
+void (*diff_funcs[DIFF_NB_FUNCS])(int, void**);
 
 void init_diff_funcs()
 {
@@ -97,6 +97,12 @@ void run(int argc, void** argv)
 {
     t_list* l = 0;
     l = get_opts_id(argc-3, argv);
+
+    while(argc > 3)
+    {
+        tab_pop(argc, argv);
+        --argc;
+    }
 
     if(l->length > 0)
     {

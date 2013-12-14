@@ -26,6 +26,7 @@
     char* str_cpy(const char* s1);
     int str_search(char *string, char *pattern);
     void tab_pop(int n, char** tab);
+    void str_sub(char* str, char c);
 
     int fCountLines(FILE* f);
     char** fToString(FILE* f, const unsigned int nb_lignes);
